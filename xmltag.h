@@ -117,8 +117,20 @@ private:
     */
     bool getNextByte(char * pByte);
 
+    /**
+    * Used internally for determining the number of bytes the generated XML will be (formatted or not)
+    *
+    * @param tabs - Used to track tree depth (or not when -1)
+    * @return int - byte count.
+    */
     int generationByteCount(int tabs = -1) const;
 
+    /**
+    * Used internally for generated XML will be (formatted or not)
+    *
+    * @param tabs - Used to track tree depth (or not when -1)
+    * @return int - byte count.
+    */
     int generateXML(char** genbuf, int pos = 0, int tabs = -1) const;
 
 public:
@@ -348,19 +360,79 @@ public:
     bool operator==(const XMLTag &tag) const;
 
     /**
-    * This this calls operator==( XMLTag &tag ) logically inverted.
+    * This calls operator==( XMLTag &tag ) logically inverted.
     *
     * @param tag const XMLTag &tag
     * @return bool
     */
     bool operator !=(XMLTag &tag);
 
+    /**
+    * returns the path relative to the main known parent of the node
+    *
+    *
+    * @return std::string
+    */
     const std::string path() const;
+
+
+    /**
+    * returns the path relative to the main known parent of the node
+    *
+    * @param strTagPath - relative path of tag to obtain
+    * NOTE: '#' place markers are use to indicate additional counter args (ie, path( "first/#/item", vec ).value()  )
+    * @return XMLTag&
+    */
     XMLTag& path(const std::string strTagPath, std::vector<int>vecVals);
+
+
+    /**
+    * returns the path relative to the main known parent of the node
+    *
+    * @param strTagPath - relative path of tag to obtain
+    * NOTE: '#' place markers are use to indicate additional counter args (ie, path( "first/#/item/#", i, j ).value()  )
+    * @return XMLTag&
+    */
     XMLTag& path(const std::string strTagPath, ...);
+
+
+    /**
+    * returns true if the path relative to the main known parent of the node exists
+    *
+    * @param strTagPath - relative path of tag to obtain
+    * NOTE: '#' place markers are use to indicate additional counter args (ie, path( "first/#/item/#", i, j )  )
+    * @return XMLTag&
+    */
     bool    hasPath(const std::string strTagPath, ...);
+
+
+    /**
+    * returns the path relative to the main known parent of the node
+    *
+    * @param strTagPath - relative path of tag to create
+    * NOTE: '#' place markers are use to indicate additional counter args (ie, path( "first/#/item/create", i ).setValue("Hello");  )
+    * @return XMLTag&
+    */
     XMLTag& buildPath(const std::string strTagPath, ...);
+
+
     XMLTag& addPath(const std::string strTagPath, ...);
+
+
+    /**
+    * Index operator; provides access to a child tag by name.
+    * If a tag contains multiple children of the same name
+    * (which is common in XML) the first child with that name
+    * is returned.
+    *
+    * @param szTagName const std::string with name of child tag
+    * @return Returns a reference to the requested child tag.  If the tag does not exist, it returns a reference to an internal bogus tag to prevent applications from crashing.
+    *
+    *           A "strictness" flag will be added later to cause
+    *           the class to throw an exception if a tag is
+    *           requested that is not present.
+    */
+    XMLTag& operator[](const std::string strTagName) const;
 
 
     /**
@@ -376,10 +448,12 @@ public:
     *           the class to throw an exception if a tag is
     *           requested that is not present.
     */
-    XMLTag& operator[](const std::string strTagName) const;
     XMLTag& operator[](const char * szTagName) const;
 
+
     XMLTag& getTag(const std::string strTagName);
+
+
     XMLTag& getTag(const char * szTagName);
 
     /**
@@ -396,6 +470,7 @@ public:
     *           that is not present.
     */
     XMLTag& operator[](size_t iTagIndex) const;
+
 
     XMLTag& getTag(size_t iTagIndex);
 
@@ -550,7 +625,15 @@ public:
     * @return bool
     */
     bool hasTag(const char* szTagName) const;
-    bool hasTag(const std::string) const;
+
+    /**
+    * Returns true if tag name is present inside this tag.
+    *
+    * @param strTagName
+    *               std::string of the name of the tag
+    * @return bool
+    */
+    bool hasTag(const std::string strTagName) const;
 
     bool deleteTag(std::string strName);
     bool deleteTag(const char * szName);
