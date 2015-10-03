@@ -1,5 +1,14 @@
 XMLTag: A recursive XML wrapper class for reading and writing XML in C++
 ======================================================================
+
+A simple multi-platform C++ xml parser
+that wraps the use and creation of XML into a single object.
+The internal parser is a single pass XML parser that is not only
+fast but allows for midstream parsing of XML data.  The class
+was designed to make using XML as a communication protocol very simple
+removing the complexity from the handling of the XML that carries
+the real data being communicated.
+
 - [Intro](#intro)
 - [User Guide](#user-guide)
     - [Example Usages](#example-usages)
