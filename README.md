@@ -18,7 +18,7 @@ the real data being communicated.
 
 Intro
 -----
-XMLTag is that represents all the general aspects of an XML tag:
+XMLTag is a C++ class that represents all the general aspects of an XML tag:
 
 - Name
 - Value
