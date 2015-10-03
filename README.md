@@ -2,9 +2,9 @@ XMLTag: A recursive XML wrapper class for reading and writing XML in C++
 ======================================================================
 - [Intro](#intro)
 - [User Guide](#user-guide)
+    - [Example Usages](#usage-documentation)
     - [Public Member Functions](#public-member-functions)
     - [Constructor & Destructor Documentation](#constructors-&-destructors)
-    - [Example Usages](#usage-documentation)
 - [License](#license)
 
 Intro
