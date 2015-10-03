@@ -113,7 +113,7 @@ Member Function Documentation
 
 License
 -------
-This software is licensed under the [GPL v3 license][gpl].
+This software is licensed under the [GPL v2 license][gpl].
 © 1999 Stephen D. Mathews Jr. 
 
 [gpl]: http://www.gnu.org/licenses/old-licenses/lgpl-2.1-standalone.html
