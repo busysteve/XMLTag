@@ -1747,5 +1747,27 @@ int XMLTag::generateXML(char **genbuf, int pos /* = 0 */,
     return pos;
 }
 
+void XMLTag::sortFloat( std::string strSubTagPath )
+{
+	XMLTag &refParent = *this;
+	int len = refParent.count();
+
+	for( int i=0; i<(len-1); i++ )
+	{
+	    for( int j=0; j<(len-1); j++ )
+		if( refParent[j].path(strSubTagPath).floatValue() > refParent[j+1].path(strSubTagPath).floatValue() )
+		    refParent.swap(j, j+1);
+	}
+}
+
+void XMLTag::swap(int pos1, int pos2)
+{	
+	if( pos1 < m_vecXMLTags.size() && pos2 < m_vecXMLTags.size() )
+	{
+	    XMLTag *p = m_vecXMLTags[pos1];
+	    m_vecXMLTags[pos1] = m_vecXMLTags[pos2];
+	    m_vecXMLTags[pos2] = p;
+	}
+}
 
 

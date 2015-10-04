@@ -820,6 +820,10 @@ public:
         return m_bIncomplete;
     }
 
+    void sortFloat( std::string strSubTagPath );
+
+    void swap(int pos1, int pos2);
+
 };
 
 #endif
