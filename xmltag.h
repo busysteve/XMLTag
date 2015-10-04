@@ -389,16 +389,6 @@ public:
     /**
     * returns the path relative to the main known parent of the node
     *
-    * @param strXPath - XPath defined path to desired data
-    * NOTE: '#' place markers are use to indicate additional counter args (ie, xpath( "/parent/data[#]/item", i).value()  )
-    * @return XMLTag named "xpath" containing the returned results
-    */
-    XMLTag& xpath(const std::string strXPath, ...);
-
-
-    /**
-    * returns the path relative to the main known parent of the node
-    *
     * @param strTagPath - relative path of tag to obtain
     * NOTE: '#' place markers are use to indicate additional counter args (ie, path( "first/#/item/#", i, j ).value()  )
     * @return XMLTag&

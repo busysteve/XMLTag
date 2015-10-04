@@ -285,35 +285,6 @@ const std::string XMLTag::path() const {
     return strPath;
 }
 
-// tag.xpath("/costs/books/book[#]/title", i);
-XMLTag &XMLTag::xpath(const std::string strXPath, ...) {
-    va_list ap;
-    va_start(ap, strXPath);
-
-    std::string strElement;
-    XMLTag *ref = this;
-    int len = strXPath.length();
-
-    for (int i = 0; i < len; i++) {
-        if (strXPath[i] == '/') {
-            if (strElement.length() > 0) {
-                ref = &(const_cast<XMLTag &>((*ref)[strElement]));
-                strElement = "";
-            }
-        } else if (strXPath[i] == '#') {
-            ref = &(const_cast<XMLTag &>((*ref)[(int)va_arg(ap, int)]));
-        } else {
-            strElement += strXPath[i];
-            if (i == len - 1) {
-                ref = &(const_cast<XMLTag &>((*ref)[strElement]));
-            }
-        }
-    }
-
-    va_end(ap);
-    return *ref;
-}
-
 // tag.path("costs/#/data/#/price", i, j );
 XMLTag &XMLTag::path(const std::string strTagPath, ...) {
     va_list ap;
