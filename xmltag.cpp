@@ -286,6 +286,7 @@ const std::string XMLTag::path() const {
 }
 
 // tag.xpath("/costs/books/book[#]/title", i);
+// May require C++11 lambda for this function
 XMLTag &XMLTag::xpath(const std::string strXPath, ...) {
     va_list ap;
     va_start(ap, strXPath);
