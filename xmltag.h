@@ -821,6 +821,8 @@ public:
     }
 
     void sortFloat( std::string strSubTagPath );
+    void sortNumber( std::string strSubTagPath );
+    void sortAlpha( std::string strSubTagPath );
 
     void swap(int pos1, int pos2);
 

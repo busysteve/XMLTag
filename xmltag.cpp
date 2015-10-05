@@ -595,12 +595,12 @@ XMLTag &XMLTag::addTag(XMLTag *pTag) {
 
     pTag->m_pParent = this;
 
-    return *m_vecXMLTags[m_vecXMLTags.size() - 1];
+    return *pTag;
 }
 
 XMLTag &XMLTag::addTag(XMLTag &Tag) {
-    XMLTag *pXmlTemp = new XMLTag(this);
-
+    XMLTag *pXmlTemp = new XMLTag();
+    pXmlTemp->m_pParent = this;
     m_vecXMLTags.push_back(pXmlTemp);
 
     char *szXML = 0;
@@ -1756,6 +1756,32 @@ void XMLTag::sortFloat( std::string strSubTagPath )
 	{
 	    for( int j=0; j<(len-1); j++ )
 		if( refParent[j].path(strSubTagPath).floatValue() > refParent[j+1].path(strSubTagPath).floatValue() )
+		    refParent.swap(j, j+1);
+	}
+}
+
+void XMLTag::sortNumber( std::string strSubTagPath )
+{
+	XMLTag &refParent = *this;
+	int len = refParent.count();
+
+	for( int i=0; i<(len-1); i++ )
+	{
+	    for( int j=0; j<(len-1); j++ )
+		if( refParent[j].path(strSubTagPath).intValue() > refParent[j+1].path(strSubTagPath).intValue() )
+		    refParent.swap(j, j+1);
+	}
+}
+
+void XMLTag::sortAlpha( std::string strSubTagPath )
+{
+	XMLTag &refParent = *this;
+	int len = refParent.count();
+
+	for( int i=0; i<(len-1); i++ )
+	{
+	    for( int j=0; j<(len-1); j++ )
+		if( refParent[j].path(strSubTagPath).value() > refParent[j+1].path(strSubTagPath).value() )
 		    refParent.swap(j, j+1);
 	}
 }
