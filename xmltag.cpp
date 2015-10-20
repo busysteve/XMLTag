@@ -1797,3 +1797,64 @@ void XMLTag::swap(int pos1, int pos2)
 }
 
 
+XMLTag& XMLTag::insertTagBefore( XMLTag* xt )
+{
+	if( xt == NULL )
+	{
+            XMLTagException x;
+            x.msg = "Cannot insert before a top level tag <";
+            x.msg += this->name() + ">";
+
+            x.sample = "";
+            throw x;
+	}
+
+	std::vector<XMLTag*>::iterator it,end;
+
+	it  = parent()->m_vecXMLTags.begin();
+	end = parent()->m_vecXMLTags.end();
+
+	for( ; it != end; it++ )
+	{
+		if( (*it) == this )
+		{
+			parent()->m_vecXMLTags.insert( it, xt );
+			break;
+		}
+	}
+
+	return *xt;
+}
+
+
+XMLTag& XMLTag::insertTagAfter( XMLTag* xt )
+{
+	if( xt == NULL )
+	{
+            XMLTagException x;
+            x.msg = "Cannot insert after a top level tag <";
+            x.msg += this->name() + ">";
+
+            x.sample = "";
+            throw x;
+	}
+
+	std::vector<XMLTag*>::iterator it,end;
+
+	it  = parent()->m_vecXMLTags.begin();
+	end = parent()->m_vecXMLTags.end();
+
+	for( ; it != end; it++ )
+	{
+		if( (*it) == this )
+		{
+			it++;
+			parent()->m_vecXMLTags.insert( it, xt );
+			break;
+		}
+	}
+
+	return *xt;
+}
+
+
