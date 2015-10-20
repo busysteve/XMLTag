@@ -826,6 +826,10 @@ public:
 
     void swap(int pos1, int pos2);
 
+    XMLTag& insertTagBefore( XMLTag* xt );
+    XMLTag& insertTagAfter( XMLTag* xt );
+
+
 };
 
 #endif
