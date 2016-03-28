@@ -98,6 +98,8 @@ private:
     // something to return that won't crash the user app
     XMLTag*     m_pBogus;
     std::string m_junk;
+	
+	bool m_bCDATA;
 
 
     void init();
@@ -819,6 +821,13 @@ public:
     {
         return m_bIncomplete;
     }
+	
+	/**
+	*/
+	bool isCDATA()
+	{
+		return m_bCDATA;
+	}
 
 };
 
