@@ -59,6 +59,7 @@ void XMLTag::init() {
     m_junk = "";
     m_ignoreCase = false;
     m_StrictMode = false;
+	m_bCDATA = false;
 }
 
 XMLTag::XMLTag() { init(); }
@@ -1039,6 +1040,9 @@ bool XMLTag::parse() {
     bool bAttributeValueAssignment = false; // true if attrib "="
     bool bOpenQuote = false;                // Used to track attribute quotes
     bool bEntity = false;
+	bool bCDATA = false;
+	int  altPos = 0;
+	
     // bool            bIncomplete = true; // true if incomplete
     bool bComment = false;
     int iCounter = 0;           // depth counter
@@ -1052,6 +1056,10 @@ bool XMLTag::parse() {
     std::string AttributeValue;
     char byte = 0;
     int buffer_pos=0;
+	
+	const char* szCDATA_open = "[CDATA["; 
+	int szCDATA_open_len = strlen( szCDATA_open );
+	
     // char     szValueText[128];
     // int     iValueTextPos = 0;
 
@@ -1189,7 +1197,90 @@ bool XMLTag::parse() {
 
                 if (!bOpenQuote && (byte == '?' || byte == '!')) {
                     if (TagText.size() == 0) {
-                        bComment = true;
+                        
+						char previousByte = 0;
+						
+						if( bComment == false )
+						while(true) // Read for CDATA
+						{
+							//TagText += byte;
+							
+							if( ( m_pUserBufferPointer != NULL) )
+							{
+								if( m_iUserBufferSize > buffer_pos )
+								{
+									if( ( byte = m_pUserBufferPointer[buffer_pos] ) == 0)
+										break;
+								}
+								else
+								{
+									break;
+								}
+							}
+							else if( getNextByte(&byte) )
+							{
+								if( byte == 0 )
+									break;
+							}
+							else
+								break;
+							
+							buffer_pos++;
+							m_szXMLBuffer.push_back( byte );
+							
+							//printf( "%c", byte );
+							
+							if( m_bCDATA == true )
+							{
+								if( byte == '>' )
+								{
+									break;
+								}
+								else
+								{
+									//ValueText += byte;
+									m_bCDATA == false;
+								}
+							}
+							else if( !bCDATA ) // CDATA not opened yet
+							{
+								if( byte == szCDATA_open[altPos] )
+								{
+									if( altPos == szCDATA_open_len-1 )
+									{
+										bComment = false;
+										bCDATA = true;
+									}
+								}
+								else
+								{
+									TagText.erase();
+									bComment = true;
+									break;
+								}
+								altPos++;
+							}
+							else // CDATA tag open and reading it until closed
+							{
+								if(previousByte == ']' && byte == ']')
+								{
+									pCurrentTag = &(pCurrentTag->addTag(new XMLTag(pCurrentTag)));
+									pCurrentTag->m_bCDATA = true;
+									ValueText.erase( ValueText.length()-1 );
+									pCurrentTag->setValue(ValueText);
+									ValueText.erase();
+									pCurrentTag = pCurrentTag->parent();
+									
+									break;
+								}
+
+								ValueText += byte;
+							}
+							
+							previousByte = byte;
+						}
+						
+						bComment = true;
                         continue;
                     } else {
                         x.sample = "<";
@@ -1584,9 +1675,16 @@ int XMLTag::generationByteCount(int tabs /* = -1 */) const {
     }
 
     // tag opening bracket and name
-    bytecount += strlen("<");
-    bytecount += name().size();
-
+	if( !m_bCDATA )
+	{
+		bytecount += strlen("<");
+		bytecount += name().size();
+	}
+	else
+	{
+		bytecount += strlen("<![CDATA[");
+	}
+	
     // tag attribute stuff
     if (attribute_count()) {
         // iterate through attibutes
@@ -1596,7 +1694,11 @@ int XMLTag::generationByteCount(int tabs /* = -1 */) const {
         }
     }
 
-    if (value().size() || count()) // if this tag has values or tags.....
+	if( m_bCDATA )
+	{
+		bytecount += value().size();
+	}
+    else if (value().size() || count()) // if this tag has values or tags.....
     {
         // Open tag closing bracket
         bytecount += strlen(">");
@@ -1636,8 +1738,15 @@ int XMLTag::generationByteCount(int tabs /* = -1 */) const {
         }
 
         // Closing tag
-        bytecount += strlen("</>");
-        bytecount += name().size();
+		if( !m_bCDATA )
+		{
+			bytecount += strlen("</>");
+			bytecount += name().size();
+		}
+		else
+		{
+			bytecount += strlen( "]]>" );
+		}
     } else // else if this tag has no tags or values.....
     {
         // closing bracket for an open/close tag
@@ -1655,8 +1764,12 @@ int XMLTag::generateXML(char **genbuf, int pos /* = 0 */,
     }
 
     // tag opening bracket and name
-    pos += sprintf(&(*genbuf)[pos], "<%s", name().c_str());
-
+	if( !m_bCDATA )
+		pos += sprintf(&(*genbuf)[pos], "<%s", name().c_str());
+	else
+		pos += sprintf(&(*genbuf)[pos], "<![CDATA[" );
+	
+	
     // tag attribute stuff
     if (attribute_count()) {
         // iterate through attibutes
@@ -1669,7 +1782,8 @@ int XMLTag::generateXML(char **genbuf, int pos /* = 0 */,
     if (value().size() || count()) // if this tag has values or tags.....
     {
         // Open tag closing bracket
-        pos += sprintf(&(*genbuf)[pos], ">");
+		if( !m_bCDATA )
+			pos += sprintf(&(*genbuf)[pos], ">");
 
         // Format with linefeeds
         if (tabs >= 0) {
@@ -1679,7 +1793,7 @@ int XMLTag::generateXML(char **genbuf, int pos /* = 0 */,
         }
 
         // Tag value
-        if (value().size()) {
+        if ( !m_bCDATA && value().size()) {
             const std::string &strValue = value();
 
             int len = strValue.size();
@@ -1703,6 +1817,10 @@ int XMLTag::generateXML(char **genbuf, int pos /* = 0 */,
             }
             // pos += sprintf( &(*genbuf)[pos], "%s", strValue().c_str() );
         }
+		else if( m_bCDATA )
+		{
+			pos += sprintf( &(*genbuf)[pos], "%s", value().c_str() );
+		}
 
         // Call (recurse) this method on all internal tags
         if (count() != 0) {
@@ -1723,8 +1841,11 @@ int XMLTag::generateXML(char **genbuf, int pos /* = 0 */,
         }
 
         // Closing tag
-        pos += sprintf(&(*genbuf)[pos], "</%s>", name().c_str());
-
+		if( !m_bCDATA )
+			pos += sprintf(&(*genbuf)[pos], "</%s>", name().c_str());
+		else
+			pos += sprintf(&(*genbuf)[pos], "]]>" );
+		
         // Format with linefeeds
         if (tabs >= 0) {
             pos += sprintf(&(*genbuf)[pos], "\n");
