@@ -1,4 +1,4 @@
-XMLTag: A recursive XML wrapper class for reading and writing XML in C++
+XMLTag: A recursive XML wrapper class for reading and writing XML in C++ (That now outputs JSON too)
 ======================================================================
 
 A simple multi-platform C++ xml parser
