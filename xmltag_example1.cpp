@@ -15,4 +15,9 @@ int main( int argc, const char **argv )
     
     // Print tab formatted XML output
     std::cout << std::endl << xml.getXMLFormatted() << std::endl;
+	
+		
+    // Print tab formatted JSON output
+    std::cout << std::endl << xml.getJSONFormatted() << std::endl;
+
 }

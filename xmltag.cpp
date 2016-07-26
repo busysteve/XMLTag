@@ -1869,4 +1869,166 @@ int XMLTag::generateXML(char **genbuf, int pos /* = 0 */,
 }
 
 
+int XMLTag::generateJSON(char **genbuf, bool comma /* = false */, int pos /* = 0 */,
+        int tabs /* = -1 */) const {
+    // Format with tabs
+    for (int i = tabs; i > 0; i--) {
+        pos += sprintf(&(*genbuf)[pos], "\t");
+    }
+
+    // tag opening bracket and name
+    pos += sprintf(&(*genbuf)[pos], "{\"%s\":", name().c_str());
+
+	/*
+    // tag attribute stuff
+    if (attribute_count()) {
+        // iterate through attibutes
+        for (int a = 0; a < attribute_count(); a++) {
+            pos += sprintf(&(*genbuf)[pos], " %s=\"%s\"", attribute_name(a).c_str(),
+                    attribute(a).c_str());
+        }
+    }
+	*/
+	
+    if (value().size() || count()) // if this tag has values or tags.....
+    {
+        // Open tag closing bracket
+        //pos += sprintf(&(*genbuf)[pos], ">");
+
+        // Format with linefeeds
+        if (tabs >= 0) {
+            if (this->value() == "") {
+                pos += sprintf(&(*genbuf)[pos], "\n");
+            }
+        }
+
+		
+        // Tag value
+        if (value().size()) {
+            const std::string &strValue = value();
+
+            int len = strValue.size();
+			
+			(*genbuf)[pos++] = '\"';
+
+            for (int i = 0; i < len; i++) {
+                char byte = strValue[i];
+
+                if (byte == '\"')
+                    pos += sprintf(&(*genbuf)[pos], "%s", "\\\"");
+                else if (byte == '\\')
+                    pos += sprintf(&(*genbuf)[pos], "%s", "\\\\");
+                else if (byte == '/')
+                    pos += sprintf(&(*genbuf)[pos], "%s", "\\/");
+                else if (byte == '\n')
+                    pos += sprintf(&(*genbuf)[pos], "%s", "\\\n");
+                else if (byte == '\r')
+                    pos += sprintf(&(*genbuf)[pos], "%s", "\\\r");
+                else if (byte == '\t')
+                    pos += sprintf(&(*genbuf)[pos], "%s", "\\\t");
+                else {
+                    (*genbuf)[pos++] = byte;
+                }
+            }
+            // pos += sprintf( &(*genbuf)[pos], "%s", strValue().c_str() );
+
+			(*genbuf)[pos++] = '\"';
+
+		}
+
+        // Call (recurse) this method on all internal tags
+		int c = count();
+        if (c != 0) {
+            for (int t = 0; t < c; t++) {
+				if( (t+1) != c )
+					comma = true;
+				else
+					comma = false;
+
+                // Recursion starts here
+                if (tabs < 0)
+                    pos += operator[](t).generateJSON(genbuf, comma, pos) - pos;
+                else
+                    pos += operator[](t).generateJSON(genbuf, comma, pos, tabs + 1) - pos;
+				
+            }
+        }
+
+        // Format closing tag with tabs if there is no value
+        if (this->value() == "") {
+            for (int i = tabs - 1; i >= 0; i--) {
+                pos += sprintf(&(*genbuf)[pos], "\t");
+            }
+        }
+
+        // Closing tag
+		if( comma )
+			pos += sprintf(&(*genbuf)[pos], "},", name().c_str());
+		else
+			pos += sprintf(&(*genbuf)[pos], "}", name().c_str());
+		
+
+        // Format with linefeeds
+        if (tabs >= 0) {
+            pos += sprintf(&(*genbuf)[pos], "\n");
+        }
+    } else // else if this tag has no tags or values.....
+    {
+        // closing bracket for an open/close tag
+        pos += sprintf(&(*genbuf)[pos], "{");
+
+        // Format with linefeeds
+        if (tabs >= 0) {
+            // if( this->value() == "" )
+            {
+                pos += sprintf(&(*genbuf)[pos], "\n");
+            }
+        }
+    }
+
+	
+    return pos;
+}
+
+
+const char *XMLTag::getJSON() const {
+    int size = generationByteCount();
+
+    if (m_tempbuf)
+        delete[] m_tempbuf;
+    // const_cast<char*>(m_tempbuf) = new char[size+1]; // new instead of malloc
+    // was only to shut up the debugger
+
+    // void* buf = malloc( size+1 );
+    m_tempbuf = new char[size + 1];
+
+    // memcpy( const_cast<char**>(&m_tempbuf), &buf, sizeof(void*) );
+    // memcpy( &m_tempbuf, &buf, sizeof(void*) );
+
+    if (m_tempbuf)
+        generateJSON(&m_tempbuf, false);
+    // generateXML( (const_cast<char**>(&m_tempbuf)) );
+    else
+        return NULL;
+
+    return static_cast<const char *>(m_tempbuf);
+}
+
+const char *XMLTag::getJSONFormatted() const {
+    int size = generationByteCount(0);
+
+    if (m_tempbuf)
+        delete m_tempbuf;
+    m_tempbuf = new char[size + size + 1]; // new instead of malloc was only to
+    // shut up the debugger
+
+    if (m_tempbuf)
+        generateJSON(&m_tempbuf, false, 0, 0);
+    else
+        return NULL;
+
+    // return m_tempbuf;
+    return static_cast<const char *>(m_tempbuf);
+}
+
 

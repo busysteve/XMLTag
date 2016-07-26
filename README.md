@@ -45,6 +45,10 @@ Example Usages
     
     // Print tab formatted XML output
     std::cout << std::endl << xml.getXMLFormatted() << std::endl;
+		
+    // Print tab formatted JSON output
+    std::cout << std::endl << xml.getJSONFormatted() << std::endl;
+
 ```
 ```tex
 g++ -o xmltag_example1 xmltag_example1.cpp xmltag.cpp
@@ -58,6 +62,14 @@ tootie
 		<child2>tootie</child2>
 	</innertag>
 </toptag>
+
+{"toptag":
+        {"innertag":
+                {"child1":"sammy"},
+                {"child3":"frank"},
+                {"child2":"tootie"}
+        }
+}
 
 ```
 
