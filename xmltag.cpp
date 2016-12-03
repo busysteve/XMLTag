@@ -1511,7 +1511,7 @@ bool XMLTag::store(const char *szFileName, bool bFormatted /* = false */) {
     if (fp != NULL) {
         if (!bFormatted) {
             int size = generationByteCount();
-            char *buf = new char[size + 1]; // new instead of malloc was only to shut
+            char *buf = new char[size+size + 1]; // new instead of malloc was only to shut
             // up the debugger
             generateXML(&buf);
             int ret = fwrite(buf, generationByteCount(), 1, fp);
@@ -1525,9 +1525,9 @@ bool XMLTag::store(const char *szFileName, bool bFormatted /* = false */) {
                 return false;
         } else {
             int size = generationByteCount(0);
-            char *buf = new char[size + 1]; // new instead of malloc was only to shut
+            char *buf = new char[size+size + 1]; // new instead of malloc was only to shut
             // up the debugger
-            generateXML(&buf, 0, 0);
+            size = generateXML(&buf, 0, 0);
             int ret = fwrite(buf, size, 1, fp);
             delete[] buf;
             fflush(fp);
@@ -1678,7 +1678,7 @@ int XMLTag::generationByteCount(int tabs /* = -1 */) const {
 	if( !m_bCDATA )
 	{
 		bytecount += strlen("<");
-		bytecount += name().size();
+		bytecount += name().length();
 	}
 	else
 	{
@@ -1698,7 +1698,7 @@ int XMLTag::generationByteCount(int tabs /* = -1 */) const {
 	{
 		bytecount += value().size();
 	}
-    else if (value().size() || count()) // if this tag has values or tags.....
+    else if (value().length() || count()) // if this tag has values or tags.....
     {
         // Open tag closing bracket
         bytecount += strlen(">");
@@ -1708,7 +1708,7 @@ int XMLTag::generationByteCount(int tabs /* = -1 */) const {
         {
             const std::string &strValue = value();
 
-            int len = strValue.size();
+            int len = strValue.length();
 
             for (int i = 0; i < len; i++) {
                 char byte = strValue[i];
@@ -1741,7 +1741,7 @@ int XMLTag::generationByteCount(int tabs /* = -1 */) const {
 		if( !m_bCDATA )
 		{
 			bytecount += strlen("</>");
-			bytecount += name().size();
+			bytecount += name().length();
 		}
 		else
 		{
