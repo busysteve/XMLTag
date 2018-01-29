@@ -109,7 +109,7 @@ XMLTag::XMLTag(const char *szTagName, unsigned int uintValue) {
     init();
     m_TagName = szTagName;
 
-    char szValue[255];
+    char szValue[1024];
     sprintf(szValue, "%u", uintValue);
     m_Value = szValue;
 }
@@ -127,8 +127,8 @@ XMLTag::XMLTag(const char *szTagName, double doubleValue) {
     init();
     m_TagName = szTagName;
 
-    char szValue[255];
-    sprintf(szValue, "%f", doubleValue);
+    char szValue[1024];
+    sprintf(szValue, "%lf", doubleValue);
     m_Value = szValue;
 }
 
@@ -1239,7 +1239,7 @@ bool XMLTag::parse() {
 								else
 								{
 									//ValueText += byte;
-									m_bCDATA == false;
+									m_bCDATA = false;
 								}
 							}
 							else if( !bCDATA ) // CDATA not opened yet
@@ -1511,10 +1511,10 @@ bool XMLTag::store(const char *szFileName, bool bFormatted /* = false */) {
     if (fp != NULL) {
         if (!bFormatted) {
             int size = generationByteCount();
-            char *buf = new char[size+size + 1]; // new instead of malloc was only to shut
+            char *buf = new char[ size*3 + 1]; // new instead of malloc was only to shut
             // up the debugger
-            generateXML(&buf);
-            int ret = fwrite(buf, generationByteCount(), 1, fp);
+            size = generateXML(&buf);
+            int ret = fwrite(buf, size, 1, fp);
             delete[] buf;
             fflush(fp);
             fclose(fp);
@@ -1525,7 +1525,7 @@ bool XMLTag::store(const char *szFileName, bool bFormatted /* = false */) {
                 return false;
         } else {
             int size = generationByteCount(0);
-            char *buf = new char[size+size + 1]; // new instead of malloc was only to shut
+            char *buf = new char[ size*3 + 1]; // new instead of malloc was only to shut
             // up the debugger
             size = generateXML(&buf, 0, 0);
             int ret = fwrite(buf, size, 1, fp);
@@ -1963,9 +1963,9 @@ int XMLTag::generateJSON(char **genbuf, bool comma /* = false */, int pos /* = 0
 
         // Closing tag
 		if( comma )
-			pos += sprintf(&(*genbuf)[pos], "},", name().c_str());
+			pos += sprintf(&(*genbuf)[pos], "}," );
 		else
-			pos += sprintf(&(*genbuf)[pos], "}", name().c_str());
+			pos += sprintf(&(*genbuf)[pos], "}" );
 		
 
         // Format with linefeeds
